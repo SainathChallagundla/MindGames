@@ -1,0 +1,99 @@
+import 'package:flutter/material.dart';
+
+class TextFields extends StatefulWidget {
+  TextFields({Key key}) : super(key: key);
+
+  _TextFields createState() => _TextFields();
+}
+
+class _TextFields extends State<TextFields> {
+  var num1 = new TextEditingController();
+  var num2 = new TextEditingController();
+  var num3 = new TextEditingController();
+  var num4 = new TextEditingController();
+  var num5 = new TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final screenhight = MediaQuery.of(context).size.width;
+    final screewidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+            child: Container(
+                height: screenhight,
+                width: screewidth,
+                child: Column(children: <Widget>[
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Container(
+                            height: screenhight / 5,
+                            width: screewidth / 6,
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)))),
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return '?';
+                                } else
+                                  return value;
+                              },
+                            )),
+                        SizedBox(width: 10),
+                        Container(
+                            height: screenhight / 5,
+                            width: screewidth / 6,
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)))),
+                            )),
+                        SizedBox(width: 10),
+                        Container(
+                            height: screenhight / 5,
+                            width: screewidth / 6,
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)))),
+                            )),
+                        SizedBox(width: 10),
+                        Container(
+                            height: screenhight / 5,
+                            width: screewidth / 6,
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)))),
+                            )),
+                        SizedBox(width: 10),
+                        Container(
+                            height: screenhight / 5,
+                            width: screewidth / 6,
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)))),
+                            )),
+                      ]),
+                  RaisedButton(
+                    child: new Text('Submit'),
+                    onPressed: () {},
+                  ),
+                ]))));
+  }
+}

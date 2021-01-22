@@ -1,0 +1,4 @@
+#Sat Jan 23 00:36:54 IST 2021
+base.0=/Users/Sainath/workspace/MindGames/memmaster/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
