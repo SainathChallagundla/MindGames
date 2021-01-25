@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/services.dart';
+import 'package:toast/toast.dart';
 
 class HomePage extends StatefulWidget {
   //HomePage({Key key, this.title}) : super(key: key);
@@ -13,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Key key = UniqueKey();
   var _num1 = new TextEditingController();
   var _num2 = new TextEditingController();
   var _num3 = new TextEditingController();
@@ -27,38 +29,60 @@ class _HomePageState extends State<HomePage> {
   bool toGenRand = true;
   bool visible = true;
   bool isEnable = false;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   //startTime();
-  // }
+  int randomSeconds = 7;
+  int entrySeconds = 15;
+  @override
+  void initState() {
+    super.initState();
+    //_HomePageState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomPadding: true,
         key: mainKey,
         appBar: AppBar(
           centerTitle: true,
-          title: Text("HomePage"),
+          title: Text(
+            "Game",
+            style: TextStyle(fontSize: 30),
+          ),
         ),
-        body: Container(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-              Visibility(
-                child: _getTimer(_firsttimecontroller, 10),
-                visible: visible,
+        body: ListView(padding: EdgeInsets.all(10.0), children: <Widget>[
+          Stack(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  iconSize: 50,
+                  color: Colors.cyan,
+                  icon: Icon(Icons.settings),
+                  onPressed: () {
+                    print("Settings Button Pressed");
+                  },
+                ),
               ),
-              Visibility(
-                child: _getRamNum(),
-                visible: visible,
-              ),
-              //_getTime(_secondtimecontroller,10),
-              _enableTextFields(),
-              _getTextFields(),
-              _getraisedButtons(),
-            ])));
+            ],
+          ),
+          SizedBox(width: 100),
+          Visibility(
+            child: _getTimer(_firsttimecontroller, randomSeconds),
+            visible: visible,
+          ),
+          SizedBox(height: 10),
+          Visibility(
+            child: _getRamNum(),
+            visible: visible,
+          ),
+          SizedBox(height: 10),
+          _enableTextFields(),
+          SizedBox(height: 10),
+          _getTextFields(),
+          SizedBox(height: 10),
+          _getButtons(),
+        ]));
   }
 
   Widget _getRamNum() {
@@ -68,24 +92,27 @@ class _HomePageState extends State<HomePage> {
         list.add(new Random().nextInt(99));
       }
       return Text(
-          '$list'.replaceAll("[", "").replaceAll("]", "").replaceAll(",", " "),
+          '     $list'
+              .replaceAll("[", "")
+              .replaceAll("]", "")
+              .replaceAll(",", " "),
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold));
     } else {
-      return Container();
+      return SizedBox(height: 0.1);
     }
   }
 
   Widget _compareTwoLists(var list1, list2) {
     if (list1.length != list2.length) {
-      return _showToast(context, "Wrong");
+      return _toast("Wrong");
     } else {
       for (var i = 0; i < list1.length; i++) {
         if (list1[i] != list2[i]) {
-          return _showToast(context, "Wrong");
+          return _toast("Wrong");
         }
       }
     }
-    return _showToast(context, "Correct");
+    return _toast("Correct");
   }
 
   List<int> _getTextFieldValues() {
@@ -99,12 +126,16 @@ class _HomePageState extends State<HomePage> {
     return _list;
   }
 
-  _showToast(BuildContext context, String message) {
-    mainKey.currentState.showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
+  // _showToast(BuildContext context, String message) {
+  //   mainKey.currentState.showSnackBar(
+  //     SnackBar(
+  //       content: Text(message),
+  //     ),
+  //   );
+  // }
+  _toast(String message) {
+    ToastView.createView(message, context, Toast.TOP, Toast.BOTTOM,
+        Colors.black, Colors.white, 20, null);
   }
 
   Widget _getTextFields() {
@@ -113,14 +144,14 @@ class _HomePageState extends State<HomePage> {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Row(
+              Column(
                   mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
                       height: 40,
-                      width: 60,
+                      width: 120,
                       child: TextFormField(
                         enabled: isEnable,
                         controller: _num1,
@@ -134,9 +165,10 @@ class _HomePageState extends State<HomePage> {
                                     BorderRadius.all(Radius.circular(10.0)))),
                       ),
                     ),
+                    SizedBox(height: 10),
                     Container(
                         height: 40,
-                        width: 60,
+                        width: 120,
                         child: TextFormField(
                           controller: _num2,
                           enabled: isEnable,
@@ -149,9 +181,10 @@ class _HomePageState extends State<HomePage> {
                             new LengthLimitingTextInputFormatter(3)
                           ],
                         )),
+                    SizedBox(height: 10),
                     Container(
                         height: 40,
-                        width: 60,
+                        width: 120,
                         child: TextFormField(
                           controller: _num3,
                           enabled: isEnable,
@@ -164,9 +197,10 @@ class _HomePageState extends State<HomePage> {
                             new LengthLimitingTextInputFormatter(3)
                           ],
                         )),
+                    SizedBox(height: 10),
                     Container(
                         height: 40,
-                        width: 60,
+                        width: 120,
                         child: TextFormField(
                           controller: _num4,
                           enabled: isEnable,
@@ -179,9 +213,10 @@ class _HomePageState extends State<HomePage> {
                             new LengthLimitingTextInputFormatter(3)
                           ],
                         )),
+                    SizedBox(height: 10),
                     Container(
                         height: 40,
-                        width: 60,
+                        width: 120,
                         child: TextFormField(
                           controller: _num5,
                           enabled: isEnable,
@@ -198,39 +233,69 @@ class _HomePageState extends State<HomePage> {
             ]));
   }
 
-  Widget _getraisedButtons() {
+  Widget _getButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        RaisedButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            color: Colors.blue,
-            child: new Text(
-              'Submit',
-              style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-            onPressed: () {
-              _compareTwoLists(list, _getTextFieldValues());
-            }),
-        RaisedButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+        Container(
+          margin: EdgeInsets.all(25.0),
+          child: Column(
+            children: <Widget>[
+              GestureDetector(
+                  child: Icon(
+                    Icons.thumb_up,
+                    size: 40.0,
+                    color: Colors.cyan,
+                  ),
+                  onTap: () {
+                    _compareTwoLists(list, _getTextFieldValues());
+                  }),
+              Text(
+                "Submit",
+                style: TextStyle(fontSize: 15),
+              )
+            ],
           ),
-          color: Colors.blue,
-          child: new Text(
-            'play again',
-            style: TextStyle(
-                fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        // RaisedButton(
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(10.0),
+        //     ),
+        //     color: Colors.cyan,
+        //     child: new Text(
+        //       'Submit',
+        //       style: TextStyle(
+        //           fontSize: 25,
+        //           fontWeight: FontWeight.bold,
+        //           color: Colors.white),
+        //     ),
+        //     onPressed: () {
+        //       _compareTwoLists(list, _getTextFieldValues());
+        //     }),
+        Container(
+          margin: EdgeInsets.all(25.0),
+          child: Column(
+            children: <Widget>[
+              GestureDetector(
+                  child: Icon(
+                    Icons.autorenew,
+                    size: 40.0,
+                    color: Colors.cyan,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      toGenRand = true;
+                      visible = true;
+                      isEnable = false;
+                      _1processData();
+                    });
+                  }),
+              Text(
+                "Play Again",
+                style: TextStyle(fontSize: 15),
+              )
+            ],
           ),
-          onPressed: () {
-            _1processData();
-          },
         ),
       ],
     );
@@ -238,105 +303,56 @@ class _HomePageState extends State<HomePage> {
 
   Widget _getTimer(CountDownController _controller, int seconds) {
     CountDownController _controller;
-
-    return CircularCountDownTimer(
-      // Countdown duration in Seconds
-      duration: seconds,
-
-      // Controller to control (i.e Pause, Resume, Restart) the Countdown
-      controller: _controller,
-
-      // Width of the Countdown Widget
-      width: 100,
-
-      // Height of the Countdown Widget
-      height: 100,
-
-      // Default Color for Countdown Timer
-      color: Colors.white,
-
-      // Filling Color for Countdown Timer
-      fillColor: Colors.blue,
-
-      // Background Color for Countdown Widget
-      backgroundColor: null,
-
-      // Border Thickness of the Countdown Circle
-      strokeWidth: 5.0,
-
-      // Begin and end contours with a flat edge and no extension
-      strokeCap: StrokeCap.round,
-
-      // Text Style for Countdown Text
-      textStyle: TextStyle(
-          fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
-
-      // true for reverse countdown (max to 0), false for forward countdown (0 to max)
-      isReverse: true,
-
-      // true for reverse animation, false for forward animation
-      isReverseAnimation: false,
-
-      // Optional [bool] to hide the [Text] in this widget.
-      isTimerTextShown: true,
-
-      // Function which will execute when the Countdown Ends
-      onComplete: () {
-        setState(() {
-          visible = false;
-          print('Countdown Ended');
-        });
-        toGenRand = false;
-        isEnable = true;
-      },
-    );
+    if (toGenRand) {
+      return CircularCountDownTimer(
+        duration: seconds,
+        autoStart: true,
+        controller: _controller,
+        width: 100,
+        height: 100,
+        color: Colors.white,
+        fillColor: Colors.cyan,
+        backgroundColor: null,
+        strokeWidth: 5.0,
+        strokeCap: StrokeCap.round,
+        textStyle: TextStyle(
+            fontSize: 30.0, color: Colors.black, fontWeight: FontWeight.bold),
+        isReverse: true,
+        isReverseAnimation: false,
+        isTimerTextShown: true,
+        onComplete: () {
+          setState(() {
+            visible = false;
+            print('Countdown Ended');
+          });
+          toGenRand = false;
+          isEnable = true;
+        },
+      );
+    } else {
+      return SizedBox(
+        height: 0.1,
+      );
+    }
   }
 
   Widget _get2ndTimer(CountDownController _controller, int seconds) {
     CountDownController _controller;
-
     return CircularCountDownTimer(
-      // Countdown duration in Seconds
       duration: seconds,
-
-      // Controller to control (i.e Pause, Resume, Restart) the Countdown
       controller: _controller,
-
-      // Width of the Countdown Widget
       width: 100,
-
-      // Height of the Countdown Widget
       height: 100,
-
-      // Default Color for Countdown Timer
       color: Colors.white,
-
-      // Filling Color for Countdown Timer
-      fillColor: Colors.blue,
-
-      // Background Color for Countdown Widget
+      fillColor: Colors.cyan,
       backgroundColor: null,
-
-      // Border Thickness of the Countdown Circle
       strokeWidth: 5.0,
-
-      // Begin and end contours with a flat edge and no extension
       strokeCap: StrokeCap.round,
-
-      // Text Style for Countdown Text
       textStyle: TextStyle(
           fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
-
-      // true for reverse countdown (max to 0), false for forward countdown (0 to max)
       isReverse: true,
-
-      // true for reverse animation, false for forward animation
       isReverseAnimation: false,
-
-      // Optional [bool] to hide the [Text] in this widget.
       isTimerTextShown: true,
-
-      // Function which will execute when the Countdown Ends
       onComplete: () {
         setState(() {
           isEnable = false;
@@ -352,13 +368,13 @@ class _HomePageState extends State<HomePage> {
         (_num3.text == "" || null) &&
         (_num4.text == "" || null) &&
         (_num5.text == "" || null)) {
-      return _showToast(context, "TimeUp");
+      return _toast("TimeUp");
     }
   }
 
   Widget _enableTextFields() {
     if (visible == false) {
-      return _get2ndTimer(_secondtimecontroller, 20);
+      return _get2ndTimer(_secondtimecontroller, entrySeconds);
     } else {
       return Container();
     }
@@ -368,14 +384,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       // Process your data and upload to server
       _formKey.currentState?.reset();
-    });
-    toGenRand = true;
-  }
-
-  void _2processData() {
-    // Process your data and upload to server
-    setState(() {
-      _firsttimecontroller.restart(duration: 5);
     });
   }
 
