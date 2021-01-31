@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:memmaster/firstpage.dart';
 import 'package:splashscreen/splashscreen.dart';
-import 'HomePage.dart';
 
 void main() => runApp(new MaterialApp(
     theme: new ThemeData(
@@ -33,8 +33,8 @@ class _MyAppState extends State<MyApp> {
         style: TextStyle(
             fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
       ),
-      useLoader: true,
-      navigateAfterSeconds: new HomePage(),
+      useLoader: false,
+      navigateAfterSeconds: new FirstPage(),
       //image: new Image.asset('assets/Images/GimpStStrokePink.png'),
       // imageBackground:
       //     new AssetImage('assets/display images/Eiffel Tower.jpeg'),
