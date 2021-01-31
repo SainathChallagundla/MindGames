@@ -1,98 +1,134 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'Settings.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 
 class HomePage extends StatefulWidget {
-  //HomePage({Key key, this.title}) : super(key: key);
-
-  //final String title;
+  HomePage({Key key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Key key = UniqueKey();
   var _num1 = new TextEditingController();
   var _num2 = new TextEditingController();
   var _num3 = new TextEditingController();
   var _num4 = new TextEditingController();
   var _num5 = new TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final mainKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
   CountDownController _firsttimecontroller = CountDownController();
   CountDownController _secondtimecontroller = CountDownController();
-  List<int> list = List();
-  List<int> _list = List();
+  List<int> randList = List();
+  List<int> txtFieldsList = List();
   bool toGenRand = true;
   bool visible = true;
-  bool isEnable = false;
-  int randomSeconds = 7;
-  int entrySeconds = 15;
+  bool isEnable = true;
+  bool timet1AutoStart = true;
+  bool timet2AutoStart = false;
+  int timer1Seconds = 7;
+  int timer2Seconds = 15;
+  bool _timer1ONstate = false;
+  bool _timer2ONstate = false;
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
-    //_HomePageState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      print('state = $state');
+      _firsttimecontroller.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      print('state = $state');
+      _firsttimecontroller.resume();
+    } else if (state == AppLifecycleState.paused) {
+      _secondtimecontroller.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      _secondtimecontroller.resume();
+    }
+    //print('state = $state');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        resizeToAvoidBottomPadding: true,
+        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomPadding: false,
         key: mainKey,
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            "Game",
-            style: TextStyle(fontSize: 30),
+            "Random Numbers Game",
+            style: TextStyle(fontSize: 25),
           ),
         ),
-        body: ListView(padding: EdgeInsets.all(10.0), children: <Widget>[
-          Stack(
-            children: <Widget>[
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  iconSize: 50,
-                  color: Colors.cyan,
-                  icon: Icon(Icons.settings),
-                  onPressed: () {
-                    print("Settings Button Pressed");
-                  },
-                ),
+        body: SingleChildScrollView(
+            child: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+              Stack(
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      iconSize: 50,
+                      color: Colors.cyan,
+                      icon: Icon(Icons.settings),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) {
+                            return Settings();
+                          },
+                        ));
+                        print("Settings Button Pressed");
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(width: 100),
-          Visibility(
-            child: _getTimer(_firsttimecontroller, randomSeconds),
-            visible: visible,
-          ),
-          SizedBox(height: 10),
-          Visibility(
-            child: _getRamNum(),
-            visible: visible,
-          ),
-          SizedBox(height: 10),
-          _enableTextFields(),
-          SizedBox(height: 10),
-          _getTextFields(),
-          SizedBox(height: 10),
-          _getButtons(),
-        ]));
+              //SizedBox(width: 100),
+              Visibility(
+                child: _getTimer1(_firsttimecontroller, timer1Seconds),
+                visible: visible,
+              ),
+              //SizedBox(height: 10),
+              Visibility(
+                child: _getRamNum(),
+                visible: visible,
+              ),
+              // SizedBox(height: 10),
+              _enableTextFields(),
+              // SizedBox(height: 10),
+              // _getTextFields(),
+              // SizedBox(height: 10),
+              // _getButtons(),
+            ]))));
   }
 
   Widget _getRamNum() {
     if (toGenRand) {
-      list.clear();
+      randList.clear();
       for (var i = 1; i <= 5; i++) {
-        list.add(new Random().nextInt(99));
+        randList.add(new Random().nextInt(99));
       }
+      print(randList);
       return Text(
-          '     $list'
+          '$randList'
               .replaceAll("[", "")
               .replaceAll("]", "")
               .replaceAll(",", " "),
@@ -100,6 +136,27 @@ class _HomePageState extends State<HomePage> {
     } else {
       return SizedBox(height: 0.1);
     }
+  }
+
+  List<int> _getTextFieldValues() {
+    txtFieldsList.clear();
+    if ((_num1.text != "") &&
+        (_num2.text != "") &&
+        (_num3.text != "") &&
+        (_num4.text != "") &&
+        (_num5.text != "")) {
+      int num1 = int.parse(_num1.text);
+      int num2 = int.parse(_num2.text);
+      int num3 = int.parse(_num3.text);
+      int num4 = int.parse(_num4.text);
+      int num5 = int.parse(_num5.text);
+      // txtFieldsList = [num1, num2, num3, num4, num5];
+      txtFieldsList.addAll([num1, num2, num3, num4, num5]);
+      print(txtFieldsList);
+      return txtFieldsList;
+    }
+    _toast("Wrong");
+    return null;
   }
 
   Widget _compareTwoLists(var list1, list2) {
@@ -115,15 +172,17 @@ class _HomePageState extends State<HomePage> {
     return _toast("Correct");
   }
 
-  List<int> _getTextFieldValues() {
-    _list.clear();
-    int num1 = int.parse(_num1.text);
-    int num2 = int.parse(_num2.text);
-    int num3 = int.parse(_num3.text);
-    int num4 = int.parse(_num4.text);
-    int num5 = int.parse(_num5.text);
-    _list = [num1, num2, num3, num4, num5];
-    return _list;
+  bool _compareTwoLists2(var list1, list2) {
+    if (list1.length != list2.length) {
+      return false;
+    } else {
+      for (var i = 0; i < list1.length; i++) {
+        if (list1[i] != list2[i]) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   // _showToast(BuildContext context, String message) {
@@ -134,103 +193,33 @@ class _HomePageState extends State<HomePage> {
   //   );
   // }
   _toast(String message) {
-    ToastView.createView(message, context, Toast.TOP, Toast.BOTTOM,
-        Colors.black, Colors.white, 20, null);
+    ToastView.createView(message, context, Toast.TOP, Toast.BOTTOM, Colors.cyan,
+        Colors.white, 20, null);
   }
 
   Widget _getTextFields() {
     return Form(
         key: _formKey,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
+        child: FocusScope(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
               Column(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Container(
-                      height: 40,
-                      width: 120,
-                      child: TextFormField(
-                        enabled: isEnable,
-                        controller: _num1,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          new LengthLimitingTextInputFormatter(3)
-                        ],
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)))),
-                      ),
-                    ),
+                    inputBorderedTextFormField(_num1, 2),
                     SizedBox(height: 10),
-                    Container(
-                        height: 40,
-                        width: 120,
-                        child: TextFormField(
-                          controller: _num2,
-                          enabled: isEnable,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)))),
-                          inputFormatters: [
-                            new LengthLimitingTextInputFormatter(3)
-                          ],
-                        )),
+                    inputBorderedTextFormField(_num2, 2),
                     SizedBox(height: 10),
-                    Container(
-                        height: 40,
-                        width: 120,
-                        child: TextFormField(
-                          controller: _num3,
-                          enabled: isEnable,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)))),
-                          inputFormatters: [
-                            new LengthLimitingTextInputFormatter(3)
-                          ],
-                        )),
+                    inputBorderedTextFormField(_num3, 2),
                     SizedBox(height: 10),
-                    Container(
-                        height: 40,
-                        width: 120,
-                        child: TextFormField(
-                          controller: _num4,
-                          enabled: isEnable,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)))),
-                          inputFormatters: [
-                            new LengthLimitingTextInputFormatter(3)
-                          ],
-                        )),
+                    inputBorderedTextFormField(_num4, 2),
                     SizedBox(height: 10),
-                    Container(
-                        height: 40,
-                        width: 120,
-                        child: TextFormField(
-                          controller: _num5,
-                          enabled: isEnable,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)))),
-                          inputFormatters: [
-                            new LengthLimitingTextInputFormatter(3)
-                          ],
-                        )),
+                    inputBorderedTextFormField(_num5, 2),
                   ]),
-            ]));
+            ])));
   }
 
   Widget _getButtons() {
@@ -238,95 +227,96 @@ class _HomePageState extends State<HomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Container(
-          margin: EdgeInsets.all(25.0),
-          child: Column(
-            children: <Widget>[
-              GestureDetector(
-                  child: Icon(
-                    Icons.thumb_up,
-                    size: 40.0,
-                    color: Colors.cyan,
-                  ),
-                  onTap: () {
-                    _compareTwoLists(list, _getTextFieldValues());
-                  }),
-              Text(
-                "Submit",
-                style: TextStyle(fontSize: 15),
-              )
-            ],
-          ),
-        ),
-        // RaisedButton(
-        //     shape: RoundedRectangleBorder(
-        //       borderRadius: BorderRadius.circular(10.0),
-        //     ),
-        //     color: Colors.cyan,
-        //     child: new Text(
-        //       'Submit',
-        //       style: TextStyle(
-        //           fontSize: 25,
-        //           fontWeight: FontWeight.bold,
-        //           color: Colors.white),
-        //     ),
-        //     onPressed: () {
-        //       _compareTwoLists(list, _getTextFieldValues());
-        //     }),
+            padding: EdgeInsets.all(25.0),
+            alignment: Alignment.center,
+            child: Column(children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.autorenew,
+                ),
+                iconSize: 50,
+                color: Colors.cyan,
+                splashColor: Colors.cyan,
+                onPressed: () {
+                  // _firsttimecontroller.restart();
+                  _formKey.currentState?.reset();
+                  _num1.clear();
+                  _num2.clear();
+                  _num3.clear();
+                  _num4.clear();
+                  _num5.clear();
+                  setState(() {
+                    timet1AutoStart = true;
+                    toGenRand = true;
+                    visible = true;
+                    //isEnable = false;
+                  });
+                  if (_timer1ONstate != true) {
+                    _firsttimecontroller.start();
+                    print("Start");
+                  } else {
+                    print("Restart");
+                    _firsttimecontroller?.restart();
+                  }
+                  //_timerController.restart();
+                },
+              ),
+              Text("Play Again"),
+            ])),
         Container(
-          margin: EdgeInsets.all(25.0),
-          child: Column(
-            children: <Widget>[
-              GestureDetector(
-                  child: Icon(
-                    Icons.autorenew,
-                    size: 40.0,
-                    color: Colors.cyan,
-                  ),
-                  onTap: () {
-                    setState(() {
-                      toGenRand = true;
-                      visible = true;
-                      isEnable = false;
-                      _1processData();
-                    });
-                  }),
-              Text(
-                "Play Again",
-                style: TextStyle(fontSize: 15),
-              )
-            ],
-          ),
-        ),
+            padding: EdgeInsets.all(25.0),
+            alignment: Alignment.center,
+            child: Column(children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.thumb_up,
+                ),
+                iconSize: 50,
+                color: Colors.cyan,
+                splashColor: Colors.cyan,
+                onPressed: () {
+                  txtFieldsList = _getTextFieldValues();
+                  _compareTwoLists(randList, txtFieldsList);
+                  if (_timer2ONstate != false) {
+                    return _secondtimecontroller.pause();
+                  }
+                },
+              ),
+              Text("Submit"),
+            ])),
       ],
     );
   }
 
-  Widget _getTimer(CountDownController _controller, int seconds) {
-    CountDownController _controller;
+  Widget _getTimer1(CountDownController _controller, int seconds) {
     if (toGenRand) {
       return CircularCountDownTimer(
         duration: seconds,
-        autoStart: true,
+        autoStart: timet1AutoStart,
         controller: _controller,
         width: 100,
         height: 100,
-        color: Colors.white,
-        fillColor: Colors.cyan,
-        backgroundColor: null,
-        strokeWidth: 5.0,
+        color: Colors.grey[300],
+        fillColor: Colors.cyanAccent[400],
+        backgroundColor: Colors.cyan[500],
+        strokeWidth: 10.0,
         strokeCap: StrokeCap.round,
         textStyle: TextStyle(
             fontSize: 30.0, color: Colors.black, fontWeight: FontWeight.bold),
         isReverse: true,
         isReverseAnimation: false,
         isTimerTextShown: true,
+        onStart: () {
+          _timer1ONstate = true;
+        },
         onComplete: () {
           setState(() {
             visible = false;
             print('Countdown Ended');
           });
           toGenRand = false;
-          isEnable = true;
+          _timer1ONstate = false;
+          timet2AutoStart = true;
         },
       );
     } else {
@@ -336,75 +326,126 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _get2ndTimer(CountDownController _controller, int seconds) {
-    CountDownController _controller;
+  // Widget _getTimer() {
+  //   if (toGenRand) {
+  //     return Container(
+  //       margin: EdgeInsets.symmetric(vertical: 10),
+  //       child: SimpleTimer(
+  //         duration: const Duration(seconds: 5),
+  //         controller: _timerController,
+  //         timerStyle: _timerStyle,
+  //         onStart: handleTimerOnStart,
+  //         onEnd: handleTimerOnEnd,
+  //         valueListener: timerValueChangeListener,
+  //         backgroundColor: Colors.grey,
+  //         progressIndicatorColor: Colors.green,
+  //         progressIndicatorDirection: TimerProgressIndicatorDirection.clockwise,
+  //         progressTextCountDirection:
+  //             TimerProgressTextCountDirection.count_down,
+  //         progressTextStyle: TextStyle(color: Colors.black),
+  //         strokeWidth: 10,
+  //       ),
+  //     );
+  //   } else {
+  //     return SizedBox(height: 1);
+  //   }
+  // }
+
+  Widget _getTimer2(CountDownController _controller, int seconds) {
     return CircularCountDownTimer(
       duration: seconds,
       controller: _controller,
       width: 100,
       height: 100,
-      color: Colors.white,
-      fillColor: Colors.cyan,
-      backgroundColor: null,
-      strokeWidth: 5.0,
+      color: Colors.grey[300],
+      fillColor: Colors.cyanAccent[400],
+      backgroundColor: Colors.cyan[500],
+      //backgroundColor: null,
+      strokeWidth: 10.0,
       strokeCap: StrokeCap.round,
       textStyle: TextStyle(
           fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
       isReverse: true,
       isReverseAnimation: false,
       isTimerTextShown: true,
+      autoStart: timet2AutoStart,
+      onStart: () {
+        _timer2ONstate = true;
+      },
       onComplete: () {
         setState(() {
           isEnable = false;
         });
+        _timer2ONstate = false;
         _textFieldsDisableIfNUll();
       },
     );
   }
 
-  Widget _textFieldsDisableIfNUll() {
-    if ((_num1.text == "" || null) &&
-        (_num2.text == "" || null) &&
-        (_num3.text == "" || null) &&
-        (_num4.text == "" || null) &&
-        (_num5.text == "" || null)) {
+  _textFieldsDisableIfNUll() {
+    if ((_num1.text == "") &&
+        (_num2.text == "") &&
+        (_num3.text == "") &&
+        (_num4.text == "") &&
+        (_num5.text == "")) {
       return _toast("TimeUp");
     }
   }
 
   Widget _enableTextFields() {
     if (visible == false) {
-      return _get2ndTimer(_secondtimecontroller, entrySeconds);
+      return Center(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+            _getTimer2(_secondtimecontroller, timer2Seconds),
+            SizedBox(height: 10),
+            _getTextFields(),
+            _getButtons(),
+          ]));
     } else {
-      return Container();
+      return SizedBox(
+        height: 1,
+      );
     }
   }
 
-  void _1processData() {
-    setState(() {
-      // Process your data and upload to server
-      _formKey.currentState?.reset();
-    });
+  Widget inputBorderedTextFormField(
+      TextEditingController controller, int maxLength) {
+    return Container(
+        height: 40,
+        width: 120,
+        child: TextFormField(
+          // focusNode: _focusnode,
+          //autofocus: true,
+          inputFormatters: <TextInputFormatter>[
+            new LengthLimitingTextInputFormatter(maxLength),
+            FilteringTextInputFormatter.digitsOnly
+          ],
+          enabled: isEnable,
+          textAlign: TextAlign.center,
+          keyboardType:
+              TextInputType.numberWithOptions(signed: true, decimal: true),
+          controller: controller,
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          cursorHeight: 25,
+          cursorWidth: 3.0,
+          decoration: InputDecoration(
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              borderSide: BorderSide(color: Colors.grey, width: 1.0),
+            ),
+            isDense: true,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              borderSide: BorderSide(color: Colors.cyan, width: 1.0),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              borderSide: BorderSide(color: Colors.black, width: 1.0),
+            ),
+          ),
+        ));
   }
-
-  // Widget _getTextFormField(
-  //     TextInputType keyboardType, TextEditingController controller,
-  //     [int minLines = 1, int maxLines = 1]) {
-  //   return TextFormField(
-  //     autocorrect: true,
-  //     keyboardType: keyboardType,
-  //     maxLines: maxLines,
-  //     controller: controller,
-  //     style: TextStyle(fontSize: 18),
-  //     decoration: InputDecoration(
-  //         isDense: true,
-  //         focusedBorder: OutlineInputBorder(
-  //           borderSide: BorderSide(color: Colors.orangeAccent, width: 1.0),
-  //         ),
-  //         enabledBorder: OutlineInputBorder(
-  //           borderSide: BorderSide(color: Colors.orangeAccent, width: 1.0),
-  //         )),
-  //   );
-  // }
-
 }
