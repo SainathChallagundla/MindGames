@@ -36,6 +36,7 @@ dependencies:
   circular_countdown_timer: ^0.0.8
   toast: ^0.1.5
   flutter_number_picker: ^0.0.8
+  number_inc_dec: ^0.6.6
   shared_preferences: ^0.5.12+4
 
 
