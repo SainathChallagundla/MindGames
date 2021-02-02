@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:memmaster/LocalStore.dart';
 import 'Settings.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
   CountDownController _firsttimecontroller = CountDownController();
   CountDownController _secondtimecontroller = CountDownController();
+  List<TextEditingController> _controllers = new List();
   List<int> randList = List();
   List<int> txtFieldsList = List();
   bool toGenRand = true;
@@ -30,14 +32,65 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool isEnable = true;
   bool timet1AutoStart = true;
   bool timet2AutoStart = false;
-  int timer1Seconds = 7;
-  int timer2Seconds = 15;
+  int _noOfDigits;
+  int _noOfRandNums;
+  int _displaySeconds;
+  int _enterTime;
   bool _timer1ONstate = false;
   bool _timer2ONstate = false;
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+    onLoad();
+  }
+
+  onLoad() async {
+    print("-------OnLoad Called--------");
+    int noOfDigits = await getnoOfDigits();
+    print("=========>HomePage<==========noOfDigits$noOfDigits");
+    setnoOfDigits(noOfDigits);
+    // if (noOfDigits == null) {
+    //   print("onLoyrff86fftft7f9f9ftftyfft7$noOfDigits");
+    //   noOfDigits = 2;
+    //   await setnoOfDigits(noOfDigits);
+    // }
+    setState(() {
+      _noOfDigits = noOfDigits;
+    });
+
+    int noOfRandNums = await getnoOfRandNums();
+    print("=========>HomePage<==========noOfRandNums$noOfRandNums");
+    setnoOfRandNums(noOfRandNums);
+    // if (noOfRandNums == null) {
+    //   noOfRandNums = 5;
+    //   await setnoOfRandNums(noOfRandNums);
+    // }
+    setState(() {
+      _noOfRandNums = noOfRandNums;
+    });
+
+    int displaySeconds = await getnoOfDigits();
+    print("=========>HomePage<==========displaySeconds$displaySeconds");
+    setdisplaySeconds(displaySeconds);
+    // if (displaySeconds == null) {
+    //   displaySeconds = 7;
+    //   await setdisplaySeconds(displaySeconds);
+    // }
+    setState(() {
+      _displaySeconds = displaySeconds;
+    });
+
+    int enterTime = await getenterTime();
+    print("=========>HomePage<==========enterTime$enterTime");
+    setenterTime(enterTime);
+    // if (enterTime == null) {
+    //   enterTime = 14;
+    //   await setenterTime(enterTime);
+    // }
+    setState(() {
+      _enterTime = enterTime;
+    });
   }
 
   @override
@@ -103,7 +156,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               //SizedBox(width: 100),
               Visibility(
-                child: _getTimer1(_firsttimecontroller, timer1Seconds),
+                child: _getTimer1(),
                 visible: visible,
               ),
               //SizedBox(height: 10),
@@ -121,10 +174,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _getRamNum() {
+    int digits;
     if (toGenRand) {
       randList.clear();
-      for (var i = 1; i <= 5; i++) {
-        randList.add(new Random().nextInt(99));
+      if (_noOfDigits == 1) {
+        digits = 9;
+      } else if (_noOfDigits == 2) {
+        digits = 99;
+      } else if (_noOfDigits == 3) {
+        digits = 999;
+      }
+      for (var i = 1; i <= _noOfRandNums; i++) {
+        randList.add(new Random().nextInt(digits));
       }
       print(randList);
       return Text(
@@ -288,12 +349,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _getTimer1(CountDownController _controller, int seconds) {
+  Widget _getTimer1() {
     if (toGenRand) {
       return CircularCountDownTimer(
-        duration: seconds,
+        duration: _displaySeconds,
         autoStart: timet1AutoStart,
-        controller: _controller,
+        controller: _firsttimecontroller,
         width: 100,
         height: 100,
         color: Colors.grey[300],
@@ -399,7 +460,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-            _getTimer2(_secondtimecontroller, timer2Seconds),
+            _getTimer2(_secondtimecontroller, _enterTime),
             SizedBox(height: 10),
             _getTextFields(),
             _getButtons(),
